@@ -61,7 +61,7 @@ double Nitrification(double NH4, double Knit/*T^(-1)*/, double TemperatureLimita
    MyTempLim = std::max(0.0,TemperatureLimitation);
    MyOxyLim = std::max(0.0,OxygenLimitation);
    MyOxyLim = std::min(1.0,MyOxyLim);
-   MyLightLim = std::max(0.0,MyLightLim);
+   MyLightLim = std::max(0.0,LightLimitation);
    MyLightLim = std::min(1.0,MyLightLim); 
    return MyKnit * MyNH4 * MyTempLim * MyOxyLim * MyLightLim; 
    //returns units of N-NH4/N-NO3 concentration decrease/increase in the water per unit of time

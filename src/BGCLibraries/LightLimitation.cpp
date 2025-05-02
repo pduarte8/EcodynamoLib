@@ -65,7 +65,7 @@ double Steele1(double PARtop, double KValue, double Depth, double PARopt)
    MyPARopt = std::max(0.0,PARopt);
    MyPARbottom = std::max(0.0, MyPARtop*exp(-MyKValue * MyDepth));
    if ((MyKValue * MyDepth > TINNY) && (MyPARtop > TINNY))
-      LightLimitation = 2.718282 / (MyKValue * MyDepth) * (exp(-MyPARbottom / MyPARopt)-exp(-MyPARtop / MyPARopt));
+      LightLimitation = exp(1.0) / (MyKValue * MyDepth) * (exp(-MyPARbottom / MyPARopt)-exp(-MyPARtop / MyPARopt));
    return LightLimitation;
 }
 
@@ -129,7 +129,7 @@ double EilersAndPeeters1(double PARtop, double KValue, double Depth, double a, d
       }
    }
    else{
-      EilersAndPeeters2(MyPARtop, Mya, b, Myc, MyPmax);}//If top and bottom light do not differ signmificantly, use the standard function, without vertical averaging
+      LightLimitation = EilersAndPeeters2(MyPARtop, Mya, b, Myc, MyPmax);}//If top and bottom light do not differ signmificantly, use the standard function, without vertical averaging
    return LightLimitation;
 }
 
