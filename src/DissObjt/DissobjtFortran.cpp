@@ -56,8 +56,18 @@ void dissobjt_nitrification__(long* PNutrients, double* lightAtTop, double* ligh
    MyLightLimitation = LightLimNitr(ptr->HalfSatForLightInhib, ptr->ThresholdForLightInhib, AverLight);
    MyTemperatureLimitation = TemperatureExponentialLimitation(MyWaterTemperature, ptr->Kt, 0.0);
    MyOxygenLimitation = MichaelisMentenLimitation(MyOxygen, ptr->knitO2);
+   /*cout << "HalfSatForLightInhib ="<< ptr->HalfSatForLightInhib << endl;
+   cout << "ThresholdForLightInhib ="<< ptr->ThresholdForLightInhib<<endl;
+   cout << "AverLight ="<< AverLight << endl;
+   cout << "MyAmmonia = "<<MyAmmonia<<endl;
+   cout << "knit ="<<ptr->knit<<endl;
+   cout << "TempLim ="<<MyTemperatureLimitation<<endl;
+   cout << "OxyLim ="<<MyOxygenLimitation<<endl;
+   cout << "LightLim ="<<MyLightLimitation<<endl;
+   */
    *NitrificationFlux = Nitrification(MyAmmonia, ptr->knit, MyTemperatureLimitation, MyOxygenLimitation, MyLightLimitation) /
                         DAYSTOSECONDS; //mmol N m-3 s-1
+   //cout << "Nitrification ="<<*NitrificationFlux<< endl;
    OxyF = *NitrificationFlux * OxygenNitrogenRatioInNitrification; //mg O2 L-1
    *OxygenFlux = OxyF / (2.0 * OXYGENATOMICWEIGHT) * CUBIC; //mmol m-3 s-1
 }
