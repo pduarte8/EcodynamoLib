@@ -1,6 +1,6 @@
-      MODULE ecodynamocpp_mod
-!
-!svn $Id: ecodynamo_cpp.F 1372 2015-11-03 00:38:29 mitya $
+ MODULE ecodynamocpp_mod
+
+!svn $Id: ecodynamo_cpp.f90 1372 2015-11-03 00:38:29 mitya $
 !=======================================================================
 !                                                                      !
 !  ECODYNAMO CPP PACKAGE:                                              !
@@ -13,15 +13,13 @@
 
       INTERFACE
 
-!    void light_new__(int* PLight);
          SUBROUTINE light_new(LOBJ) BIND(C, NAME="light_new__")
          USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_LONG
          integer(C_LONG) :: LOBJ
          END SUBROUTINE light_new 
 
 
-!    void light_new_go__(int* PLight, double* curtime, double* julianday, double* latitude, double* cloudcover, double* seaalbedo, double* light);      
-         SUBROUTINE light_new_go(LOBJ,MyHou,MyDa,lat,clou,cawdi,srfl) &
+         SUBROUTINE light_new_go(LOBJ,MyHou,MyDa,lat,clou,cawdi,srfl)   &
          BIND(C, NAME="light_new_go__")
          USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE, C_LONG
          integer(C_LONG), intent(in) :: LOBJ
@@ -30,13 +28,6 @@
          real(C_DOUBLE), intent(out) :: srfl
          END SUBROUTINE light_new_go
 
-!    void phytoplankton_new__(int* PPhytoplankton, double* pmax, double* iopt, double* imax, double* slope, double* aEiler, double* bEiler, double* cEiler, 
-!                            double* maintenanceRespiration, double* respirationCoefficient,double* docStressLoss,
-!                            double* deathLoss, double* redfieldCFactor, double* redfieldNFactor,double* redfieldPFactor, double* temperatureAugmentationRate,
-!                            double* ratioLightDarkRespiration, double* minNPRatio,double* maxNPRatio, double* pMaxUptake, double* nMaxUptake, double* kP,double* kNO3, 
-!                            double* kNH4, double* minPCellQuota, double* maxPCellQuota,double* minNCellQuota, double* maxNCellQuota, double* kPInternal,double* kNInternal, 
-!                            double* settlingSpeed, double* carbonToOxygenProd,double* carbonToOxygenResp, double* tminRespiration,double* tminPhotosynthesis, 
-!                            int* nitrogenLimitation, int* phosphorusLimitation, int* Chl2Carbon);
 
          SUBROUTINE phytoplankton_new(PHYOBJ,Pmax,Iopt,ImaxE,PhyIS,     &
      &     Beta,                                                        &
@@ -104,7 +95,6 @@
          integer(C_INT), intent(in) :: NutLimType                  ! nondimensional
          END SUBROUTINE phytoplankton_new
 
-!    void phytoplankton_go__(int* PPhytoplankton, double* layerThickness, double* timeStep);
 
          SUBROUTINE phytoplankton_go(PHYOBJ,Hz,dt)                      & 
          BIND(C, NAME='phytoplankton_go__')
@@ -113,8 +103,6 @@
          real(C_DOUBLE), intent(in) ::  Hz, dt
          END SUBROUTINE phytoplankton_go
 
-!    void phytoplankton_production__(int* PPhytoplankton, double* lightAtTop, double* lightAtBottom, double* kValue,double* waterTemperature,
-!                                    int* piCurveOption, double* julianDay, double* GrossProduction, double* nPhyto, double* pPhyto, double* biomass, double *Slope, double* Chl2Carbon);
 
       SUBROUTINE phytoplankton_production(     PHYOBJ,               &
      &                                            TopLight,             & 
@@ -126,7 +114,8 @@
      &                                            PhyIS,                &
      &                                            Chl2Carbon,           &
      &                                            OxygenProduction,     &
-     &                                            Line,Column,Layer)    &
+     &                                            Line,Column,Layer,    &
+     &                                            LayerThickness)       & 
          BIND(C,NAME='phytoplankton_production__')
          USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_INT, C_DOUBLE, C_LONG
          integer(C_LONG), intent(in) :: PHYOBJ
@@ -147,6 +136,7 @@
          integer(C_INT), intent(in) :: Line
          integer(C_INT), intent(in) :: Column
          integer(C_INT), intent(in) :: Layer
+         real(C_DOUBLE), intent(in) :: LayerThickness
          END SUBROUTINE phytoplankton_production
 
       SUBROUTINE light_fortran_go( Dangle, Hangle,Rsolar, latr,lonr,    &
@@ -158,12 +148,11 @@
       real(C_DOUBLE), intent(out) :: srflx
       END SUBROUTINE light_fortran_go
 
-!    void phytoplankton_nitrogen_uptake__(int* PPhytoplankton, double* Ammonia, double* Nitrate, double* Nitrite,double* cffNH4, double *cffNO3NO2, double* nPhyto, double* biomass);  
       
          SUBROUTINE phytoplankton_nitrogen_uptake(    PHYOBJ,           &
      &                                             NH4,NO3,dumNitrite,  & 
      &                                             cffNH4, cffNO3NO2,   &
-     &                                             PhyN,Phyt)           &
+     &                                             PhyN,PhyP,Phyt)      &
          BIND(C,NAME='phytoplankton_nitrogen_uptake__')
          USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE, C_LONG
          integer(C_LONG), intent(in) :: PHYOBJ
@@ -172,37 +161,38 @@
          real(C_DOUBLE), intent(in) :: dumNitrite
          real(C_DOUBLE), intent(inout) :: cffNH4, cffNO3NO2
          real(C_DOUBLE), intent(in) :: PhyN                 ! Phytoplankton concentration in nitrogen units (mmol N / m3)
+         real(C_DOUBLE), intent(in) :: PhyP                 !Phytoplankton concentration in phosphorus units (mmol P / m3)
          real(C_DOUBLE), intent(in) :: Phyt                 ! Phytoplankton concentration in carbon units (mmol C / m3)         
          END SUBROUTINE phytoplankton_nitrogen_uptake
 
-!    void phytoplankton_phosphorus_uptake__(int* PPhytoplankton, double* Phosphate,double* cffPO4, double* pPhyto, double* biomass); 
 
          SUBROUTINE phytoplankton_phosphorus_uptake(PHYOBJ,             &
      &                                             PO4,cffPO4,          &
-     &                                             PhyP,Phyt)           &
+     &                                             PhyN,PhyP,Phyt)      &
          BIND(C,NAME='phytoplankton_phosphorus_uptake__')
          USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE, C_LONG
          integer(C_LONG), intent(in) :: PHYOBJ
          real(C_DOUBLE), intent(in) :: PO4                  ! [millimole/m3]
          real(C_DOUBLE), intent(inout) :: cffPO4
+         real(C_DOUBLE), intent(in) :: PhyN                 ! Phytoplankton concentration in nitrogen units (mmol N / m3)
          real(C_DOUBLE), intent(in) :: PhyP                 ! Phytoplankton concentration in phosphorus units (mmol N / m3)
          real(C_DOUBLE), intent(in) :: Phyt                 ! Phytoplankton concentration in carbon units (mmol C / m3)         
          END SUBROUTINE phytoplankton_phosphorus_uptake
 
         SUBROUTINE phytoplankton_silica_uptake(PHYOBJ,                  &
      &                                             SiOH4,cffSiOH4,      &
-     &                                             LphS,Lphy)           &
+     &                                             LphN,LphS,Lphy)      &
 
          BIND(C,NAME='phytoplankton_silica_uptake__')              
          USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE, C_LONG
          integer(C_LONG), intent(in) :: PHYOBJ
          real(C_DOUBLE), intent(in) :: SiOH4                ![millimole/m3]
          real(C_DOUBLE), intent(inout) :: cffSiOH4
+         real(C_DOUBLE), intent(in) :: LphN                 !Phytoplankton concentration in nitrogen units (mmol N / m3)
          real(C_DOUBLE), intent(in) :: LphS                 !Phytoplankton concentration in silica units (mmol N / m3)
          real(C_DOUBLE), intent(in) :: Lphy                 !Phytoplankton concentration in carbon units (mmol C / m3)
          END SUBROUTINE phytoplankton_silica_uptake
          
-!    void phytoplankton_respiration__(int* PPhytoplankton, double* waterTemperature, double* cffCRespiration, double *GrossProduction, double* biomass,  double* Chl2Carbon);
 
          SUBROUTINE phytoplankton_respiration(PHYOBJ,                   &
      &                                        temp,                     &
@@ -225,7 +215,6 @@
          real(C_DOUBLE), intent(inout) :: OxygenConsumption
          END SUBROUTINE phytoplankton_respiration         
 
-!    void phytoplankton_exudation__(int* PPhytoplankton, double* cffCExudation, double *GrossProduction, double* biomass);
 
          SUBROUTINE phytoplankton_exudation(  PHYOBJ,                   &
      &                                        cffCExud,                 &
@@ -297,6 +286,7 @@
      &                                     TopLight,                  &
      &                                     BottomLight,               &
      &                                     KValue,                    &
+     &                                     LayerThickness,            &
      &                                     temp,                      &
      &                                     NH4,                       &
      &                                     oxygen,                    &
@@ -308,6 +298,7 @@
          real(C_DOUBLE), intent(in) :: TopLight
          real(C_DOUBLE), intent(in) :: BottomLight
          real(C_DOUBLE), intent(in) :: KValue
+         real(C_DOUBLE), intent(in) :: LayerThickness
          real(C_DOUBLE), intent(in) :: temp
          real(C_DOUBLE), intent(in) :: NH4
          real(C_DOUBLE), intent(in) :: oxygen
@@ -366,8 +357,6 @@
          real(C_DOUBLE), intent(inout) :: minRateN
          END SUBROUTINE dissobjt_NitrogenMineralization   
 
-!(int *PNutrients, double * waterTemperature,
-!double *OrganicPhosphorus, double *Oxygen, double *OrganicPhosphorusFlux, double *PhosphateFlux, double *minRateP);
 
       SUBROUTINE dissobjt_PhosphorusMineralization(DISSOBJ,           &
      &                                     temp,                      &
@@ -385,28 +374,18 @@
          real(C_DOUBLE), intent(inout) :: minRateP
          END SUBROUTINE dissobjt_PhosphorusMineralization   
 
-      SUBROUTINE light_fort_roms(Dangle,Hangle,Rsolar, latr,lonr, cloud,&
-     & Tair, Pair, Hair,  srflx)
-!      USE mod_param
-!      USE mod_scalars  
-      real, intent(in) :: Dangle, Hangle, Rsolar
-      real, intent(in) :: cloud, latr, lonr, Tair, Pair, Hair
-!      real :: cff, cff1, cff2
-!      real(r8) :: e_sat, vap_p, zenith, LatRad
-      real, intent(out) :: srflx
-      END SUBROUTINE light_fort_roms
 
-! Production-light functions to calculate light limitation
-    
+      ! Production-light functions to calculate light limitation
+
       REAL(C_DOUBLE) FUNCTION Platt1(PARtop,KValue,Depth, &
      & Pmax,beta,slope,EulerSteps)          &
        BIND(C,NAME='Platt1')
        USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE, C_LONG
-       REAL(C_DOUBLE), intent(in),value :: PARtop 
+       REAL(C_DOUBLE), intent(in),value :: PARtop
        REAL(C_DOUBLE), intent(in),value :: KValue, Depth
        REAL(C_DOUBLE), intent(in),value :: Pmax,beta,slope
-       integer(C_LONG), intent(in),value:: EulerSteps    
-      END FUNCTION 
+       integer(C_LONG), intent(in),value:: EulerSteps
+      END FUNCTION
 
       REAL(C_DOUBLE) FUNCTION Platt2(PAR,    &
      & Pmax,beta,slope)          &
@@ -447,7 +426,7 @@
 
 ! End production-light functions
 
-! Temperature limitation functions
+      ! Temperature limitation functions
 
       REAL(C_DOUBLE) FUNCTION TemperatureExponentialLimitation  &
      & (WaterTemperature,TemperatureAugmentationRate,Tmin) &
@@ -461,8 +440,7 @@
 
 ! End temperature limitation functions
 
-
-! Nutrient limitation function
+      ! Nutrient limitation function
       REAL(C_DOUBLE) FUNCTION InternalNutrientLimitation     &
      & (CellQuota,MinCellQuota,HalfSaturation) &
        BIND(C,NAME='InternalNutrientLimitation')
@@ -487,13 +465,13 @@
       END FUNCTION
 
 ! End nutrient limitation functions
-! 
-! Grazing functions
+
+      ! Grazing functions
       REAL(C_DOUBLE) FUNCTION Hollings(K,Prey,HollingsType)&
        BIND(C,NAME='Hollings')
        USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE, C_LONG
        REAL(C_DOUBLE), intent(in),value :: K, Prey
-       integer(C_LONG), intent(in),value:: HollingsType 
+       integer(C_LONG), intent(in),value:: HollingsType
       END FUNCTION
 
       REAL(C_DOUBLE) FUNCTION IvlevFunction(Lambda,Prey) &
@@ -503,18 +481,14 @@
       END FUNCTION
 ! End grazing functions
 
-
-! Biogeochemical cycles functions
-     ! REAL(C_DOUBLE) FUNCTION DenitrificationToNH4(NO3,Kdenit,&
-     !& TemperatureLimitation, OxygenLimitation, debug)&
+      ! Biogeochemical cycles functions
       REAL(C_DOUBLE) FUNCTION DenitrificationToNH4(NO3,Kdenit,&
      & TemperatureLimitation, OxygenLimitation)&
        BIND(C,NAME='DenitrificationToNH4')
-       USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE, C_BOOL
+       USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE
        REAL(C_DOUBLE), intent(in),value :: NO3, Kdenit
        REAL(C_DOUBLE), intent(in),value :: TemperatureLimitation
        REAL(C_DOUBLE), intent(in),value :: OxygenLimitation
-!       LOGICAL(C_BOOL), intent(in),value :: debug
       END FUNCTION
 
       REAL(C_DOUBLE) FUNCTION DenitrificationToN2 &
@@ -527,13 +501,13 @@
 
       REAL(C_DOUBLE) FUNCTION Mineralization(minR, &
      & TemperatureLimitation,OxygenLimitation,Xorganic) &
-       BIND(C,NAME='Mineralization') 
+       BIND(C,NAME='Mineralization')
        USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE
        REAL(C_DOUBLE), intent(in),value :: minR
        REAL(C_DOUBLE), intent(in),value :: TemperatureLimitation
        REAL(C_DOUBLE), intent(in),value :: OxygenLimitation
        REAL(C_DOUBLE), intent(in),value :: Xorganic
-      END FUNCTION       
+      END FUNCTION
 
       REAL(C_DOUBLE) FUNCTION Nitrification(NH4,Knit,&
      & TemperatureLimitation, OxygenLimitation,      &
@@ -556,7 +530,7 @@
       END FUNCTION
 
       REAL(C_DOUBLE) FUNCTION PhosphorusAdsorption &
-     & (PO4InPoreWater,Pads,Pmax,OxygenInPoreWater,& 
+     & (PO4InPoreWater,Pads,Pmax,OxygenInPoreWater,&
      & OxygenThreshold,Ka1,Ka2) &
        BIND(C,NAME='PhosphorusAdsorption')
        USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE
@@ -565,44 +539,16 @@
        REAL(C_DOUBLE), intent(in),value :: OxygenThreshold,Ka1,Ka2
       END FUNCTION
 
-      REAL(C_DOUBLE) FUNCTION PhosphorusDesorption &
+       REAL(C_DOUBLE) FUNCTION PhosphorusDesorption &
      & (Pads, Kd, Pmax) BIND(C,NAME='PhosphorusDesorption')
        USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE
        REAL(C_DOUBLE), intent(in),value :: Pads,Kd,Pmax
       END FUNCTION
 
       ! End biogeochemical cycles functions
+
       END INTERFACE
 
       END MODULE ecodynamocpp_mod
-
-      SUBROUTINE light_fort_roms(Dangle, Hangle,Rsolar,latr,lonr, cloud,  & 
-     & Tair, Pair, Hair,  srflx) 
-      !USE mod_param
-      !USE mod_scalars
-      real, intent(in) :: Dangle, Hangle, Rsolar
-      real, intent(in) :: latr, lonr, cloud, Tair, Pair, Hair
-      real :: cff, cff1, cff2
-      real :: e_sat, vap_p, zenith, LatRad
-      real, intent(out) :: srflx
- 
-      LatRad=latr*deg2rad
-      cff1=SIN(LatRad)*SIN(Dangle)
-      cff2=COS(LatRad)*COS(Dangle)
-      srflx=0.0
-      zenith=cff1+cff2*COS(Hangle-lonr*deg2rad/15.0)
-      IF (zenith.gt.0.0) THEN
-         cff=(0.7859+0.03477*Tair)/                       &
-     &        (1.0+0.00412*Tair)
-         e_sat=10.0**cff     ! saturation vapor pressure (hPa=mbar)
-
-         vap_p=Pair*Hair/(0.62197+0.378*Hair)
-         srflx=Rsolar*zenith*zenith*                            &
-     &        (1.0-0.6*cloud**3)/                   &
-     &        ((zenith+2.7)*vap_p*1.0E-3+                &
-     &        1.085*zenith+0.1)
-         
-      END IF
-      END SUBROUTINE light_fort_roms
 
 
