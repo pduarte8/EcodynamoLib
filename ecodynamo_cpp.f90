@@ -520,6 +520,12 @@
        REAL(C_DOUBLE), intent(in),value :: LightLimitation
       END FUNCTION
 
+      REAL(C_DOUBLE) FUNCTION LightLimNitr(KI,I0,Light) &
+       BIND(C,NAME='LightLimNitr')
+       USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE
+       REAL(C_DOUBLE), intent(in),value :: KI, I0, Light
+      END FUNCTION
+
       REAL(C_DOUBLE) FUNCTION OrganicDissolution(dissR, &
      & TemperatureLimitation, Xorganic) &
        BIND(C,NAME='OrganicDissolution')
@@ -539,11 +545,26 @@
        REAL(C_DOUBLE), intent(in),value :: OxygenThreshold,Ka1,Ka2
       END FUNCTION
 
-       REAL(C_DOUBLE) FUNCTION PhosphorusDesorption &
+      REAL(C_DOUBLE) FUNCTION PhosphorusDesorption &
      & (Pads, Kd, Pmax) BIND(C,NAME='PhosphorusDesorption')
        USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE
        REAL(C_DOUBLE), intent(in),value :: Pads,Kd,Pmax
       END FUNCTION
+
+      REAL(C_DOUBLE) FUNCTION Respiration1 &
+     & (Maintenance,GrossProduction,RespirationCoeff, &
+     &  WaterTemperature,TemperatureAugmentationRate, &
+     &  Tmin) &
+       BIND (C,NAME='Respiration1')
+       USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_DOUBLE
+       REAL(C_DOUBLE), intent(in),value :: Maintenance
+       REAL(C_DOUBLE), intent(in),value :: GrossProduction
+       REAL(C_DOUBLE), intent(in),value :: RespirationCoeff
+       REAL(C_DOUBLE), intent(in),value :: WaterTemperature
+       REAL(C_DOUBLE), intent(in),value :: TemperatureAugmentationRate
+       REAL(C_DOUBLE), intent(in),value :: Tmin
+      END FUNCTION
+    
 
       ! End biogeochemical cycles functions
 

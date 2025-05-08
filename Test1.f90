@@ -14,7 +14,7 @@
         DOUBLE PRECISION :: Temp, TempAugRate, Tmin     
         DOUBLE PRECISION :: NutLim, CellQuota
         DOUBLE PRECISION :: MinCellQuota, HalfSaturation
-        DOUBLE PRECISION :: NO3, KNO3,NH4, KNH4 
+        DOUBLE PRECISION :: NO3, KNO3,NH4, KNH4,KI,I0 
         DOUBLE PRECISION :: NO2, N, KN
         DOUBLE PRECISION :: GrazingLim,K,Prey,Lambda,alfa
         DOUBLE PRECISION :: Kdenit,O2,O2thr,alfa1,Knit
@@ -23,11 +23,14 @@
         DOUBLE PRECISION :: DenitToNH4, DenitToN2
         DOUBLE PRECISION :: Nit, Pdes
         DOUBLE PRECISION :: OxyLim
+        DOUBLE PRECISION :: Maintenance,GrossProduction
+        DOUBLE PRECISION :: RespirationCoeff,Resp
+
         !LOGICAL          :: debug = .true.
         LOGICAL(C_BOOL) :: debug
         debug = .true.
 
-        PARtop = 5.13509e-06
+        PARtop = 5.13509
         PAR = PARtop
         KValue = 0.0703777
         Depth = 2.32157
@@ -72,8 +75,11 @@
         Ka1 = 0.1
         Ka2 = 0.05
         Kd = 0.1
-
-          
+        KI = 0.01
+        I0 = 0.0095
+        Maintenance = 0.002
+        RespirationCoeff = 0.184
+        GrossProduction = 1.0          
  
         write(*,*) 'Test1'
       ! Calling a C++ function through the ecodynamo_cpp
@@ -173,24 +179,25 @@
 
         GrazingLim = IvlevFunction(Lambda,Prey)
         write(*,*) 'Grazing Ivlev =',GrazingLim
-        
+      ! Hollings type done  
         OxyLim = MichaelisMentenLimitation(O2,KO2) 
-        
-        !OxyLim = -1.0
-        !DenitToNH4 = DenitrificationToNH4 &
-        !& (NO3,Kdenit,TempLim,OxyLim,debug)
+      ! Denitrification  
         DenitToNH4 = DenitrificationToNH4 &
         & (NO3,Kdenit,TempLim,OxyLim)
         DenitToN2 = DenitrificationToN2(DenitToNH4,alfa)
-        Nit = Nitrification(NH4,Knit,TempLim,OxyLim,LightLim)
-        write(*,*) 'NH4 = ',NH4
-        write(*,*) 'Knit= ',Knit
-        write(*,*) 'TempLim = ',TempLim        
-        write(*,*) 'OxyLim = ',OxyLim
-        write(*,*) 'LightLim = ',LightLim
         write(*,*) 'DenitToNH4 =',DenitToNH4
         write(*,*) 'DenitToN2 =',DenitToN2
+      ! Denitrifcation done
+      ! Nitrification
+        LightLim = LightLimNitr(KI,I0,PAR);
+        Nit = Nitrification(NH4,Knit,TempLim,OxyLim,LightLim)
         write(*,*) 'Nitrification =',Nit
+      ! Nitrification done
 
-
+      ! Respiration
+        Resp = Respiration1(Maintenance,GrossProduction,&
+                & RespirationCoeff,Temp,&
+                & TempAugRate,Tmin) 
+        write(*,*) 'Respiration =',Resp
+      ! Respiration done
         end program Test1
