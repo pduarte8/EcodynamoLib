@@ -5,6 +5,9 @@
 using namespace std;
 
 
+
+// Langdon, C.: The significance of respiration in production measurements based on oxygen, ICES marine Science Symposium, 197, 69-78, 1993.
+
 double Respiration1(double Maintenance, double GrossProduction, double RespirationCoefficient, double WaterTemperature, double TemperatureAugmentationRate, double Tmin)
 {
    double MyMaintenance = 0.0, MyGrossProduction, Respiration = 0.0;	

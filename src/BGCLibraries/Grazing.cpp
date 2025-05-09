@@ -15,24 +15,29 @@ using namespace std;
 //Rohr, T., Richardson, A. J., Lenton, A., and Shadwick, E.: Recommendations for the formulation of grazing in marine biogeochemical and ecosystem models, Prog Oceanogr, 208, Artn 102878
 //10.1016/J.Pocean.2022.102878, 2022.
 //
-//
+/*****************************************************************************************************************************************************************************************/
 //This functions may be used for Hollings types 0, 1 and 2, depending on the values of its last argument.
 //
-double Hollings(double K, double Prey, int HollingsType)
+double Hollings(double K, double Prey, int HollingsType)	
 {
+   //K - Half saturation constant for in prey concentration units (the same used for Prey
+   //Prey - prey concentration in the same units as K
+   //HollingsType - an integer defining the type of grazing response {0, 1, 2 and 3}
    double GrazingLimitation = 0.0,  TINNY = 0.0000000001;
    double MyK, MyPrey, MyHollingsType;
    //cout << "K= " << K << endl;
    //cout << "Prey= " << Prey << endl;
    //cout << "HollingsType= " << HollingsType << endl;
+   //Forcing function arguments within the acceptable range
    MyK = std::max(0.0,K);
    MyPrey = std::max(0.0,Prey);
    MyHollingsType = std::max(0,HollingsType);
+   //range check finished
    if (MyPrey > TINNY)
       GrazingLimitation = std::max(0.0,pow(MyPrey,MyHollingsType)/(pow(MyK,MyHollingsType)+pow(MyPrey,MyHollingsType)));
-   return GrazingLimitation;
+   return GrazingLimitation; //dimensionless [0 1]
 }
-
+/*****************************************************************************************************************************************************************************************/
 
 //Ivlev V. Experimental Ecology of the Feeding of Fishes
 //Yale University Press, New Haven (1961)
@@ -43,9 +48,15 @@ double Hollings(double K, double Prey, int HollingsType)
 //
 double IvlevFunction(double Lambda, double Prey)
 {
+   //Prey - prey in concentration units
+   //Lambda - in the inverse units of prey	
    double GrazingLimitation, MyLambda, MyPrey;
+   //Forcing function arguments within the acceptable range
    MyLambda = std::max(0.0,Lambda);
    MyPrey = std::max(0.0,Prey);
-   GrazingLimitation = 1.0 - exp(-MyLambda * MyPrey);
-   return GrazingLimitation;
+   //range check finished
+
+   GrazingLimitation = 1.0 - exp(-MyLambda * MyPrey); 
+   return GrazingLimitation; //dimensionless [0 1]
 }
+/*****************************************************************************************************************************************************************************************/
