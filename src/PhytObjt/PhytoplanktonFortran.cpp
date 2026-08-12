@@ -312,6 +312,7 @@ void phytoplankton_production__(long* PPhytoplankton, double* lightAtTop, double
 	LiebigLimitation = MIN(LiebigLimitation,InternalNutrientLimitation(MyPCellQuota, ptr->MinPCellQuota, ptr->KPInternal));      
       if (ptr->GetIntParameterValue("Silica limitation") == 1)
         LiebigLimitation = MIN(LiebigLimitation,InternalNutrientLimitation(MySiCellQuota, ptr->MinSiCellQuota, ptr->KSiInternal));
+      MyProductivity = MyProductivity * LiebigLimitation;
    }
 
    /***************************************Productivity recalculated in mmol C/m3/s*******************************************************************************/
