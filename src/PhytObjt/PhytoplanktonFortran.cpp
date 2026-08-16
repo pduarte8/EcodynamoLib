@@ -15,8 +15,10 @@
 
 #include "../include/ecodyn.rh"
 #include "phytobjt.h"
-#include "../BGCLibraries/LightLimitation.cpp"
-#include "../BGCLibraries/TemperatureLimitation.cpp"
+#include "../BGCLibraries/BGCHeader.h"
+//#include "../BGCLibraries/NutrientLimitation.cpp"
+//#include "../BGCLibraries/LightLimitation.cpp"
+//#include "../BGCLibraries/TemperatureLimitation.cpp"
 
 void phyto_getvalues__(float* phytobiomass)
 {
